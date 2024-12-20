@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web control for Holyrics</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+</head>
+<body onload="loadConfig()">
+    <style>
+        /* Configura la apariencia de todo el cuerpo del documento */
+        body {
+            font-family: sans-serif; /* Fuente del texto, con fallback a otras fuentes en caso de no estar disponibles */
+            background-color: #3a393a; /* Color de fondo del cuerpo (un tono oscuro) */
+            margin: 5; /* Elimina los márgenes externos del cuerpo */
+            padding-top: 0; /* Elimina los espacios internos del cuerpo */
+            /* display: flex;  Utiliza flexbox para organizar los elementos hijos */
+            justify-content: left; /* Centra horizontalmente el contenido del cuerpo */
+            align-items: left; /* Centra verticalmente el contenido del cuerpo */
+            color: white;
+            /*height: 100vh; /* Establece la altura del cuerpo como el 100% del alto del viewport (ventana visible) */
+        }
+        
+        .title{
+            font-size: 1em;
+            text-align: center;
+            font-weight: bold;
+            width: 210px;
+            color: #02004a;
+        }
+
+        .title-inside{
+            font-size: 1em;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+            color: #02004a;
+        }
+
+        .contenedor_global {
+            display: flex; /* Utiliza flexbox para organizar los elementos hijos */
+            flex-direction: column; /* Organiza los elementos hijos en una columna vertical */
+            align-items: left; /* Centra horizontalmente los elementos hijos dentro del contenedor */
+            gap: 0px; /* Espacio entre los elementos hijos del contenedor */
+        }
+
+        .contenedor_letras {
+            gap: 0px; /* Espacio entre los elementos hijos del contenedor */
+            padding: 0px; /* Espaciado interno del contenedor */
+            border-radius: 10px; /* Radio de las esquinas del contenedor para que tenga bordes redondeados */
+            /*border: 2px solid #db2222; /* Borde sólido de 2 píxeles con color rojo (#db2222) */
+            /*margin-left: 65px*/
+            display: flex;
+            justify-content: end; /* Centra horizontalmente los elementos */
+            width: 350px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+        .sticky-buttons {
+            position: sticky;
+            top: 0; /* La posición en la parte superior de la ventana del navegador */
+            background-color: rgb(136, 136, 136); /* Fondo blanco para cubrir los elementos de la tabla */
+            z-index: 1000; /* Z-index para estar por encima de la tabla */
+            box-shadow: 0px -4px 0px 5px #3a393a;
+        }
+
+        .contenedor_botones {
+            gap: 0px; /* Espacio entre los elementos hijos del contenedor */
+            padding: 0px; /* Espaciado interno del contenedor */
+            padding-left: 5px;
+            padding-right: 5px;
+            border-radius: 10px; /* Radio de las esquinas del contenedor para que tenga bordes redondeados */
+            /*: 2px solid #1317ec; /* Borde sólido de 2 píxeles con color azul (#1317ec) */
+            /*margin-left: 5px;*/
+            display: flex;
+            /*align-items: center;  Centra verticalmente los elementos hijos */
+            justify-content: end;
+            max-width: 350px;
+        }
+
+        .sticky-buttons-back {
+            position: sticky;
+            top: 51px; /* La posición en la parte superior de la ventana del navegador */
+            background-color: rgb(136, 136, 136); /* Fondo blanco para cubrir los elementos de la tabla */
+            z-index: 999; /* Z-index para estar por encima de la tabla */
+            box-shadow: 0px 4px 0px 5px #3a393a;
+        }
+
+        .sticky-output {
+            position: sticky;
+            top: 102px; /* La posición en la parte superior de la ventana del navegador */
+            background-color: rgb(58, 57, 58); /* Fondo blanco para cubrir los elementos de la tabla */
+            z-index: 998; /* Z-index para estar por encima de la tabla */
+        }
+
+        /* Configura la apariencia de los botones y etiquetas */
+        label {
+            padding-left: 5px; /* Espaciado interno del botón o etiqueta */
+            padding-top: 10px;
+            padding-right: 5px;
+            padding-bottom: 10px;
+            max-height: 85%;
+            /* background-color: #666464; /* Color de fondo del botón o etiqueta (un tono gris oscuro) */
+            color: white; /* Color del texto dentro del botón o etiqueta */
+            border: none; /* Sin borde */
+            border-radius: 5px; /* Radio de las esquinas del botón o etiqueta para que tenga bordes redondeados */
+            /*cursor: pointer; /* Cambia el cursor a una mano cuando el botón o etiqueta es interactivo */
+            display: flex;
+            align-items: center; /* Centra verticalmente los elementos hijos */
+            justify-content: center; /* Centra horizontalmente los elementos hijos */
+        }
+
+        button {
+            padding: 5px 5px; /* Espaciado interno del botón o etiqueta */
+            color: white; /* Color del texto dentro del botón o etiqueta */
+            background-color: rgb(48, 15, 85);
+            border: none; /* Sin borde */
+            border-radius: 5px; /* Radio de las esquinas del botón o etiqueta para que tenga bordes redondeados */
+            margin-top: 2px;
+            margin-bottom: 2px;
+            cursor: pointer; /* Cambia el cursor a una mano cuando el botón o etiqueta es interactivo */
+            min-width: 46px;
+        }
+
+        input {
+            /* max-width: 110px;  Anchura máxima del elemento input */
+            background-color: #b7b7b7; /* Color de fondo del input (un tono gris medio) */
+            color: rgb(12, 0, 46); /* Color del texto dentro del input */
+            padding-top: 3px; /* Espaciado interno del input */
+            padding-bottom: 3px;
+            text-align: center;
+            font-size: 14px; /* Tamaño de la fuente del texto dentro del input */
+            border: 0px solid #ffffff; /* Borde del input (0 píxeles de ancho, no visible) */
+            border-radius: 5px; /* Radio de las esquinas del input para que tenga bordes redondeados */
+            outline: none; /* Elimina el contorno predeterminado que aparece cuando el input está en foco */
+        }
+
+        button img {
+            width: 30px; /* Ajusta el ancho de la imagen dentro del botón */
+            height: 30px; /* Ajusta la altura de la imagen dentro del botón */
+            /*border-left: 15px;*/
+            margin-right: 0px; /* Agrega un espacio entre la imagen y el texto del botón */
+        }
+
+        /* Estilo para el texto dentro de las celdas de la tabla */
+        td, th {
+            font-size: 14px; /* Aquí puedes ajustar el tamaño del texto, por ejemplo, 14px */
+        }
+
+        .login {
+            width: 350px;
+            /* max-width: 350px; */
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 6px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #2f395f 100%);
+            /* height: 70vh; */
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            color: rgb(48, 15, 85);
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        input[type="password"] {
+            text-align: center;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        input[type="password"]:focus {
+            border-color: #74ebd5;
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 1rem;
+        }
+
+        /* Agregar animación para destellar el borde verde */
+        @keyframes flash-green {
+            from { border: 1px solid transparent; }
+            to { border-color: green; }
+        }
+
+        /* Agregar animación para destellar el borde rojo */
+        @keyframes flash-red {
+            from { border: 1px solid transparent; }
+            to { border-color: red; }
+        }
+
+        /* Aplicar estilos para el botón */
+        button {
+            border: 2px solid #837f7f;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            background-color: #326c7a;
+            color: white;
+            cursor: pointer;
+        }
+
+        #hidden {
+            display: none;
+            z-index: -1;
+        }
+
+        /* Clase para aplicar la animación verde */
+        .flash-green-border {
+            animation: flash-green 1s infinite;
+        }
+
+        /* Clase para aplicar la animación roja */
+        .flash-red-border {
+            animation: flash-red 1s infinite;
+        }
+
+        .lineaid{
+            transition: all .5ms;
+            padding-left: 10px;
+        }
+
+        .lineaid:hover{
+            transform: scale(1.03);
+            cursor: pointer;
+            color:yellow;
+            background-color: #605e60; /* Define el color de fondo cuando el cursor está sobre el elemento */
+        }
+
+        .title-type {
+            font-weight: bold; /* Texto en negrita */
+            padding-left: 10px; /* Padding left de 10px */
+            color: rgb(0, 255, 0);
+            border: 1px solid #999; /* Establece un borde de 1 píxel sólido en un color gris (#999) */
+            padding: 2px; /* Opcional: agrega un espacio de relleno alrededor del contenido */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .config-form {
+            position: fixed; /* Fijo para mantenerlo siempre en la parte superior */
+            top: 0; /* Posición en la parte superior de la ventana */
+            left: 0; /* Alineado a la izquierda */
+            width: 100%; /* Ocupar todo el ancho de la ventana */
+            background-color: rgb(58, 57, 58); /* Fondo similar al diseño general */
+            z-index: 1100; /* Asegurarte de que esté por encima de otros elementos */
+            padding: 10px; /* Espaciado interno */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Sombra para destacarlo */
+            display: flex; /* Flexbox para organizar los elementos dentro */
+            flex-direction: column; /* Alinear elementos en columna */
+            gap: 10px; /* Espaciado entre los elementos */
+            align-items: start; /* Alinear los elementos a la izquierda */
+        }
+
+    </style>
+
+    <div class="login" id="config-form" style="display: none;">
+        <h1>Configurar Datos Iniciales</h1>
+        <label for="ip">IP:</label>
+        <input id="ip" type="text" placeholder="Ej: 127.0.0.1"><br><br>
+        <label for="port">Puerto:</label>
+        <input id="port" type="text" placeholder="Ej: 8091"><br><br>
+        <label for="token">token:</label>
+        <input id="token" type="text" placeholder="Ej: ABC123"><br><br>
+        <button onclick="saveConfig()">Guardar</button>
+    </div>
+
+    <div class="contenedor_global" id=contenedor_global style="display: block;">
+
+        <div class="contenedor_letras sticky-buttons">
+            <p class="title-inside">SLIDES</p>
+            <button id="ToggleF8" title="Fondo de pantalla [F8]">
+                F8
+            </button>
+            <button id="ToggleF9" title="Sin letra [F9]">
+                F9
+            </button>
+            <button id="ToggleF10" title="Pantalla negra [F10]">
+                F10
+            </button>
+            <button id="CloseCurrentPresentation" title="Cerrar presentación [ESC]">
+                <span class="material-icons">
+                    cancel_presentation
+                </span>
+            </button>
+            <button id="actionPrevious" title="Anterior [←]">
+                <span class="material-icons">
+                    arrow_back
+                </span>
+            </button>
+            <button id="actionNext" title="Siguiente [→]">
+                <span class="material-icons">
+                    arrow_forward
+                </span>
+            </button>
+        </div>
+
+        <div class="contenedor_botones sticky-buttons-back">
+
+            <label id="hidden" clas="hidden" for="elementId"><input class="hidden" type="text" maxlength="3" id="elementId" name="elementId"></label>
+
+            <button class="hidden" id="MediaPlaylistAction" title="Reproducir desde ID">
+                <span class="material-icons">
+                    play_arrow
+                </span>
+            </button>
+            <button id="clearStorageBtn">Eliminar datos</button>
+            <p class="title">Player</p>
+            <button id="MediaPlayerActionPause" title="Play/Pause">
+                <span class="material-symbols-outlined">
+                    play_pause
+                </span>
+            </button>
+            <button id="MediaPlayerActionStop" title="Detener reproducción">
+                <span class="material-icons">
+                    stop
+                </span>
+            </button>
+            <br>
+            <button id="GetMediaPlaylist" title="Obtener lista de reproducción">
+                <span class="material-icons">
+                    list_alt
+                </span>
+            </button>
+            
+        </div>
+        
+        <div class="sticky-output">
+            <pre id="output"></pre>
+        </div>
+        
+        <table id="outputTable";>
+            <thead>
+                <tr>
+                    <th></th>
+                    <!-- <th style="padding-left: 10px;" text-align="left">Media</th> -->
+                    <th class="hidden">ID</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById("clearStorageBtn").addEventListener("click", function() {
+            // Pedir confirmación al usuario antes de eliminar los datos
+            const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar los datos almacenados?");
+
+            if (confirmDelete) {
+                // Eliminar solo los datos específicos del localStorage
+                localStorage.removeItem("ip");
+                localStorage.removeItem("port");
+                localStorage.removeItem("token");
+
+                alert("Datos eliminados del almacenamiento local.");
+
+                // Mostrar el formulario nuevamente si los datos se han eliminado
+                document.getElementById("config-form").style.display = "block";
+                document.getElementById("contenedor_global").style.display = "none";
+            }
+        });
+
+        // Función para guardar la configuración en LocalStorage
+        function saveConfig() {
+            const ip = document.getElementById("ip").value;
+            const port = document.getElementById("port").value;
+            const token = document.getElementById("token").value;
+
+            // Guardar datos en LocalStorage
+            localStorage.setItem("ip", ip);
+            localStorage.setItem("port", port);
+            localStorage.setItem("token", token);
+
+            alert("Configuración guardada");
+            location.reload(); // Recargar para aplicar cambios
+        }
+
+        const ip = localStorage.getItem("ip");
+        const port = localStorage.getItem("port");
+        const token = localStorage.getItem("token");
+        
+        // Función para cargar y verificar la configuración
+        function loadConfig() {
+            
+            if (ip && port && token) {
+                document.getElementById("config-form").style.display = "none";
+                document.getElementById("contenedor_global").style.display = "block";
+            } else {
+                // Si no existen datos, mostrar formulario
+                document.getElementById("config-form").style.display = "block";
+                document.getElementById("contenedor_global").style.display = "none";
+            }
+            console.log(ip, port, token);
+        }
+
+        // Configuración global
+        const BASE_URL = `http://${ip}:${port}/api/`;
+        const ToggleF8 = document.getElementById('ToggleF8');
+        const ToggleF9 = document.getElementById('ToggleF9');
+        const ToggleF10 = document.getElementById('ToggleF10');
+        const CloseCurrentPresentation = document.getElementById('CloseCurrentPresentation');
+        const actionPrevious = document.getElementById('actionPrevious');
+        const actionNext = document.getElementById('actionNext');
+        const MediaPlaylistAction = document.getElementById('MediaPlaylistAction');
+        const MediaPlayerActionPause = document.getElementById('MediaPlayerActionPause');
+        const MediaPlayerActionStop = document.getElementById('MediaPlayerActionStop');
+        const GetMediaPlaylist = document.getElementById('GetMediaPlaylist');
+        const outputTable = document.getElementById('outputTable');
+        const elementIdInput = document.getElementById('elementId');
+        const outputBody = document.querySelector('#outputTable tbody');
+        const output = document.getElementById('output');
+    
+        let playing = null;
+
+        function mostrarIcono(tipo) {
+            const icono = tipoIconos[tipo] || 'help'; // Si no se encuentra el tipo, se usa un icono de ayuda por defecto
+            return `<span class="material-icons">${icono}</span>`;
+        }
+        // Crea un mapa que asocie el tipo con el nombre del archivo de icono
+        const tipoIconos = {
+            title: 'horizontal_rule',
+            song: 'lyrics',
+            verse: 'menu_book',
+            text: 'text_fields',
+            audio: 'audiotrack',
+            video: 'movie',
+            image: 'image',
+            file: 'file_present',
+            announcement: 'campaign',
+            automatic_presentation: 'amp_stories',
+            countdown: 'timer',
+            countdown_cp: 'timer',
+            cp_text: 'text_fields',
+            plain_text: 'text_fields',
+            uri: 'link',
+            global_action: 'settings',
+            api: 'api',
+            script: 'code',
+        };
+
+        function extractFileName(path) {
+            const parts = path.split('\\'); // Divide la ruta en partes usando el separador de carpeta (en Windows)
+            return parts[parts.length - 1]; // Devuelve la última parte que es el nombre del archivo
+        }
+
+        outputTable.addEventListener('click', function(event) {
+            const clickedElement = event.target;
+            if (clickedElement.tagName === 'TD' && clickedElement.parentElement.cells[1] === clickedElement) {
+                const idValue = clickedElement.parentElement.cells[2].textContent; // Obtén el ID de la columna ID
+                elementIdInput.value = idValue;
+                MediaPlaylistAction.click(); // Disparar evento click del botón de reproducción
+            }
+        });
+
+        // Función para obtener el estado del reproductor
+        function getMediaPlayerInfo(callback) {
+            const url = `${BASE_URL}GetMediaPlayerInfo?token=${token}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                playing = data.data?.playing || null; // Actualiza el estado global
+                console.log(`Estado actual de reproducción: ${playing}`);
+                callback(); // Llama a la función callback después de obtener el estado
+            })
+            .catch(error => {
+                console.error(`Error al obtener el estado del reproductor: ${error.message}`);
+            });
+        }
+
+        // Función genérica para enviar comandos
+        function sendCommand(endpoint, buttonElement) {
+            const url = `${BASE_URL}${endpoint}?token=${token}`;
+            let bodyData = {};
+
+            if (endpoint === 'MediaPlaylistAction') {
+                const elementId = elementIdInput.value; // Obtener el valor del ID
+                bodyData = { id: elementId }; // Enviar el ID como parte del cuerpo
+            }
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Asegura que el tipo de contenido sea JSON
+                },
+                body: JSON.stringify(bodyData) // Envía un cuerpo vacío en formato JSON
+            })
+
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    buttonElement.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        buttonElement.classList.remove('flash-green-border');
+                    }, 1000);
+                    output.textContent = `Acción "${endpoint}" ejecutada correctamente.`;
+                } else {
+                    // Mostrar respuesta en el output
+                    output.textContent = `Error: ${JSON.stringify(data)}`;
+                    buttonElement.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        buttonElement.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+                if (endpoint === 'GetMediaPlaylist') {
+                    // Filtrar solo las propiedades "id", "name" y "type" del array
+                    const filteredData = data.data.map(item => {
+                        return {
+                            type: item.type,
+                            id: item.id,
+                            name: extractFileName(item.name), // Llama a una función para extraer el nombre del archivo
+                            
+                        };
+                    });
+
+                    // Generar la tabla con los datos filtrados
+                    outputBody.innerHTML = filteredData.map(item => {
+                        const isTitle = item.type === 'title';
+                        const nameClass = isTitle ? 'title-type' : 'lineaid';
+
+                        // Obtiene el nombre del archivo de icono según el tipo
+                        const iconName = tipoIconos[item.type] || '';
+
+                        return `
+                            <tr>
+                                <td ${isTitle ? 'class="title-type"' : ''} align="right">
+                                    <span class="material-icons">${tipoIconos[item.type] || 'help'}</span>
+                                </td>
+                                <td class="${nameClass}">${item.name}</td>
+                                <td class="hidden">${item.id}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            })
+            .catch(error => {
+                output.textContent = `Error de conexión: ${error.message}`;
+                buttonElement.classList.add('flash-red-border');
+                setTimeout(() => {
+                    buttonElement.classList.remove('flash-red-border');
+                }, 1000);
+            });
+        }
+
+        // Función para manejar el botón de Play/Pausa
+        function handlePlayPause(buttonElement) {
+            getMediaPlayerInfo(() => {
+                // Decide la acción en función del estado actual
+                const action = playing ? 'pause' : 'play';
+                const url = `${BASE_URL}MediaPlayerAction?token=${token}`;
+                const body = JSON.stringify({ action });
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: body
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Actualiza el botón visualmente y muestra el estado
+                        buttonElement.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            buttonElement.classList.remove('flash-green-border');
+                        }, 1000);
+                        output.textContent = `Acción "${action.toUpperCase()}" ejecutada correctamente.`;
+                    } else {
+                        output.textContent = `Error: ${JSON.stringify(data)}`;
+                        buttonElement.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            buttonElement.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    output.textContent = `Error de conexión: ${error.message}`;
+                    buttonElement.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        buttonElement.classList.remove('flash-red-border');
+                    }, 1000);
+                });
+            });
+        }
+
+        function mediaStop(buttonElement) {
+            const action = 'stop';
+            const url = `${BASE_URL}MediaPlayerAction?token=${token}`;
+            const body = JSON.stringify({ action });
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Actualiza el botón visualmente y muestra el estado
+                    buttonElement.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        buttonElement.classList.remove('flash-green-border');
+                    }, 1000);
+                    output.textContent = `Acción "${action.toUpperCase()}" ejecutada correctamente.`;
+                } else {
+                    output.textContent = `Error: ${JSON.stringify(data)}`;
+                    buttonElement.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        buttonElement.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                output.textContent = `Error de conexión: ${error.message}`;
+                buttonElement.classList.add('flash-red-border');
+                setTimeout(() => {
+                    buttonElement.classList.remove('flash-red-border');
+                }, 1000);
+            });
+        }
+
+        // Asignar el evento al botón de Play/Pausa
+        MediaPlayerActionPause.addEventListener('click', () => handlePlayPause(MediaPlayerActionPause));
+    
+        // Asignar eventos a los botones
+        ToggleF8.addEventListener('click', () => sendCommand('ToggleF8', ToggleF8));
+        ToggleF9.addEventListener('click', () => sendCommand('ToggleF9', ToggleF9));
+        ToggleF10.addEventListener('click', () => sendCommand('ToggleF10', ToggleF10));
+        CloseCurrentPresentation.addEventListener('click', () => sendCommand('CloseCurrentPresentation', CloseCurrentPresentation));
+        actionPrevious.addEventListener('click', () => sendCommand('ActionPrevious', actionPrevious));
+        actionNext.addEventListener('click', () => sendCommand('ActionNext', actionNext));
+        MediaPlaylistAction.addEventListener('click', () => sendCommand('MediaPlaylistAction', MediaPlaylistAction));
+        MediaPlayerActionStop.addEventListener('click', () => mediaStop(MediaPlayerActionStop));
+        GetMediaPlaylist.addEventListener('click', () => sendCommand('GetMediaPlaylist', GetMediaPlaylist));
+    
+        // Manejo de teclas
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'F8':
+                    ToggleF8.click();
+                    break;
+                case 'F9':
+                    ToggleF9.click();
+                    break;
+                case 'F10':
+                    ToggleF10.click();
+                    break;
+                case 'Escape':
+                    CloseCurrentPresentation.click();
+                    break;
+                case 'ArrowLeft':
+                    actionPrevious.click();
+                    break;
+                case 'ArrowRight':
+                    actionNext.click();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
